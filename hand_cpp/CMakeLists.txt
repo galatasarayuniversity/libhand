@@ -16,10 +16,6 @@ ENDIF(APPLE)
 
 ADD_DEFINITIONS(-O3)
 
-# Uncomment the following line for development of the library
-# It will help against unwanted bugs
-# INCLUDE(copts_stricter_warnings.cmake)
-
 SET(BUILD_SHARED_LIBS ON)
 
 FIND_PACKAGE(Boost REQUIRED)
@@ -31,11 +27,6 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 INCLUDE_DIRECTORIES(
   ${OGRE_INCLUDE_DIRS}
-  ${OGRE_RenderSystem_GL_INCLUDE_DIR}
-  ${OGRE_Plugin_BSPSceneManager_INCLUDE_DIR}
-  ${OGRE_Plugin_OctreeSceneManager_INCLUDE_DIR}
-  ${OGRE_Plugin_PCZSceneManager_INCLUDE_DIR}
-  ${OGRE_Plugin_ParticleFX_INCLUDE_DIR}
 )
 
 ADD_LIBRARY(dot_sceneloader dot_sceneloader.cc)
@@ -83,9 +74,8 @@ TARGET_LINK_LIBRARIES(hand_renderer
   ${EXTRA_LINUX_LIBS}
   ${OpenCV_LIBS}
   ${OGRE_LIBRARIES}
-  ${OGRE_RenderSystem_GL_LIBRARIES}
   ${OGRE_LIBRARY}
-  ${OGRE_Plugin_OctreeSceneManager_LIBRARIES})
+)
 
 message(STATUS "==================================================")
 message(STATUS "   Build diagnostics:")
@@ -95,17 +85,7 @@ message(STATUS "OgreLib: ${OGRE_LIBRARY}")
 message(STATUS "Ogre: ${OGRE_LIBRARIES}")
 message(STATUS "Ogre GL: ${OGRE_RenderSystem_GL_LIBRARIES}")
 message(STATUS "Ogre Octree: ${OGRE_Plugin_OctreeSceneManager_LIBRARIES}")
-message(STATUS "X11_FOUND: ${X11_FOUND}")
-message(STATUS "XAW_LIBRARY: ${XAW_LIBRARY}")
 message(STATUS "OGRE_LIBRARY_FWK: ${OGRE_LIBRARY_FWK}")
-message(STATUS "ZZip_LIBRARIES: ${ZZip_LIBRARIES}")
-message(STATUS "ZLIB_LIBRARIES: ${ZLIB_LIBRARIES}")
-message(STATUS "FreeImage_LIBRARIES: ${FreeImage_LIBRARIES}")
-message(STATUS "FREETYPE_LIBRARIES: ${FREETYPE_LIBRARIES}")
-message(STATUS "X11_LIBRARIES: ${X11_LIBRARIES}")
-message(STATUS "X11_Xrandr_LIB: ${X11_Xrandr_LIB}")
-message(STATUS "Cocoa_LIBRARIES: ${Cocoa_LIBRARIES}")
-message(STATUS "Carbon_LIBRARIES: ${Carbon_LIBRARIES}")
 message(STATUS "==================================================")
 
 install(TARGETS
@@ -131,11 +111,6 @@ SET(LibHand_INCLUDE_DIRS
   ${Boost_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${OGRE_INCLUDE_DIRS}
-  ${OGRE_RenderSystem_GL_INCLUDE_DIR}
-  ${OGRE_Plugin_BSPSceneManager_INCLUDE_DIR}
-  ${OGRE_Plugin_OctreeSceneManager_INCLUDE_DIR}
-  ${OGRE_Plugin_PCZSceneManager_INCLUDE_DIR}
-  ${OGRE_Plugin_ParticleFX_INCLUDE_DIR}
 )
 
 CONFIGURE_FILE(LibHandConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/LibHandConfig.cmake @ONLY)
