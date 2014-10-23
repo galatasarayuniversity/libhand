@@ -6,4 +6,4 @@ SET(HAND_LIB_DIST_DIR "${CMAKE_SOURCE_DIR}/hand_cpp/dist")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/hand_cpp/modules)
 
-SUBDIRS(hand_cpp)
+add_subdirectory(hand_cpp)
