@@ -231,16 +231,16 @@ If you are sure that mex works well, then you can proceed
 
 Doing
 
-cd hand_matlab
+cd matlab
 ./mex_compile.sh
 
 should take care of everything.
 
-The MATLAB interface will live in "hand_matlab/dist"
+The MATLAB interface will live in "matlab/dist"
 
-There is example code in "hand_matlab/examples"
+There is example code in "matlab/examples"
 
-Start MATLAB, then cd into the "hand_matlab/examples" directory.
+Start MATLAB, then cd into the "matlab/examples" directory.
 
 Type
 add_paths

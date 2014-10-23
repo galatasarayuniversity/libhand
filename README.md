@@ -63,8 +63,8 @@ with different hand poses.
   comments. The examples directory requires the hand_cpp directory to be
   compiled and setup first
 
-- hand_matlab - contains the interface code for MATLAB, along with MATLAB
-  examples. To compile hand_matlab, you need a recent version of MATLAB that
+- matlab - contains the interface code for MATLAB, along with MATLAB
+  examples. To compile matlab, you need a recent version of MATLAB that
   is setup to compile with mex. Make sure you can compile C the example code
   that comes with your installation of MATLAB before trying to compile
   the LibHand MATLAB interface. Alternatively, you can download a

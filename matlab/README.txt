@@ -5,7 +5,7 @@ All rights reserved.
 http://www.libhand.org/  -- the most up-to-date information on LibHand.
 
 
-    hand_matlab README
+    matlab README
  (please check INSTALL.txt in the root LibHand directory for more
  detailed instructions)
 
