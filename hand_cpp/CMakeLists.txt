@@ -29,6 +29,18 @@ INCLUDE_DIRECTORIES(
   ${OGRE_INCLUDE_DIRS}
 )
 
+message(STATUS "==================================================")
+message(STATUS "Build diagnostics:")
+message(STATUS "")
+message(STATUS "TinyXML: FIXME")
+message(STATUS "OpenCV: ${OpenCV_LIBS}")
+message(STATUS "OgreLib: ${OGRE_LIBRARY}")
+message(STATUS "Ogre: ${OGRE_LIBRARIES}")
+message(STATUS "Ogre GL: ${OGRE_RenderSystem_GL_LIBRARIES}")
+message(STATUS "Ogre Octree: ${OGRE_Plugin_OctreeSceneManager_LIBRARIES}")
+message(STATUS "OGRE_LIBRARY_FWK: ${OGRE_LIBRARY_FWK}")
+message(STATUS "==================================================")
+
 ADD_LIBRARY(dot_sceneloader dot_sceneloader.cc)
 TARGET_LINK_LIBRARIES(dot_sceneloader tinyxml)
 
@@ -77,26 +89,6 @@ TARGET_LINK_LIBRARIES(hand_renderer
   ${OGRE_LIBRARY}
 )
 
-message(STATUS "==================================================")
-message(STATUS "   Build diagnostics:")
-message(STATUS "")
-message(STATUS "OpenCV: ${OpenCV_LIBS}")
-message(STATUS "OgreLib: ${OGRE_LIBRARY}")
-message(STATUS "Ogre: ${OGRE_LIBRARIES}")
-message(STATUS "Ogre GL: ${OGRE_RenderSystem_GL_LIBRARIES}")
-message(STATUS "Ogre Octree: ${OGRE_Plugin_OctreeSceneManager_LIBRARIES}")
-message(STATUS "OGRE_LIBRARY_FWK: ${OGRE_LIBRARY_FWK}")
-message(STATUS "==================================================")
-
-install(TARGETS
-  hand_hog
-  hand_renderer
-  hand_utils
-  dot_sceneloader
-  EXPORT LibHand-export DESTINATION ${HAND_LIB_DIST_DIR})
-
-install(EXPORT LibHand-export DESTINATION ${HAND_LIB_DIST_DIR})
-
 ADD_EXECUTABLE(pose_designer
   pose_designer_main.cc
   pose_designer.cc)
@@ -113,7 +105,20 @@ SET(LibHand_INCLUDE_DIRS
   ${OGRE_INCLUDE_DIRS}
 )
 
+install(TARGETS
+  hand_hog
+  hand_renderer
+  hand_utils
+  dot_sceneloader
+  pose_designer
+  EXPORT LibHand-export DESTINATION ${HAND_LIB_DIST_DIR})
+
+install(EXPORT LibHand-export DESTINATION ${HAND_LIB_DIST_DIR})
+
+INSTALL(FILES libhand-ogre-plugins.cfg DESTINATION ${HAND_LIB_DIST_DIR})
+
 CONFIGURE_FILE(LibHandConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/LibHandConfig.cmake @ONLY)
+
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/LibHandConfig.cmake
   DESTINATION ${HAND_LIB_DIST_DIR})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/LibHandConfig.cmake
