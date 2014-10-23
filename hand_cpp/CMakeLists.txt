@@ -38,8 +38,8 @@ INCLUDE_DIRECTORIES(
   ${OGRE_Plugin_ParticleFX_INCLUDE_DIR}
 )
 
-ADD_SUBDIRECTORY(dot_sceneloader)
-INCLUDE_DIRECTORIES(dot_sceneloader)
+ADD_LIBRARY(dot_sceneloader dot_sceneloader.cc)
+TARGET_LINK_LIBRARIES(dot_sceneloader tinyxml)
 
 SET(MACSRCS "")
 
@@ -112,6 +112,7 @@ install(TARGETS
   hand_hog
   hand_renderer
   hand_utils
+  dot_sceneloader
   EXPORT LibHand-export DESTINATION ${HAND_LIB_DIST_DIR})
 
 install(EXPORT LibHand-export DESTINATION ${HAND_LIB_DIST_DIR})
