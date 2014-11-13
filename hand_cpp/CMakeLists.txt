@@ -10,6 +10,8 @@ IF(APPLE)
 ELSE(APPLE)
   IF(UNIX)
     LIST(APPEND LibHand_EXTRA_LIBS "-ldl -lXt")
+    # For Ubuntu
+    LIST(APPEND CMAKE_MODULE_PATH "/usr/share/OGRE/cmake/modules/")
     ADD_DEFINITIONS(-fPIC)
   ENDIF()
 ENDIF(APPLE)
