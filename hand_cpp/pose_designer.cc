@@ -50,8 +50,13 @@ PoseDesigner::PoseDesigner()
 void PoseDesigner::Setup(int argc, char **argv) {
   argc_ = argc;
   argv_ = argv;
+  string scene_file;
 
-  string scene_file = GetSceneFileName();
+  if (argc_ > 1) {
+      scene_file = argv_[1];
+  } else {
+      scene_file = GetSceneFileName();
+  }
   if (scene_file == "") {
     throw runtime_error("No scene file chosen!");
   }
