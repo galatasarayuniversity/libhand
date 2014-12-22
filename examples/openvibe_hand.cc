@@ -36,10 +36,16 @@ int main(int argc, char **argv) {
     HandRenderer hand_renderer;
     hand_renderer.Setup();
 
-    // Ask the user to show the location of the scene spec file
-    FileDialog dialog;
-    dialog.SetTitle("Please select a scene spec file");
-    string file_name = dialog.Open();
+    string file_name;
+
+    if (argc > 1) {
+        file_name = argv[1];
+    } else {
+        // Ask the user to show the location of the scene spec file
+        FileDialog dialog;
+        dialog.SetTitle("Please select a scene spec file");
+        file_name = dialog.Open();
+    }
 
     // Process the scene spec file
     SceneSpec scene_spec(file_name);
