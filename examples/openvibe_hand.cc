@@ -3,7 +3,16 @@
 //
 // This is a line-by-line code example
 
-# include <string>
+#include <string>
+#include <thread>
+
+#include <iostream>
+#include <cstring>
+
+#include "osc/osc/OscReceivedElements.h"
+#include "osc/osc/OscPacketListener.h"
+#include "osc/ip/UdpSocket.h"
+#define PORT 7000
 
 // We will use OpenCV, so include the standard OpenCV header
 # include "opencv2/opencv.hpp"
@@ -24,14 +33,51 @@
 
 // Don't forget to mention the libhand namespace
 using namespace libhand;
-
 using namespace std;
+
+// OpenViBE Listener
+class ExamplePacketListener : public osc::OscPacketListener {
+protected:
+    virtual void ProcessMessage( const osc::ReceivedMessage& m, const IpEndpointName& remoteEndpoint )
+    {
+        (void) remoteEndpoint; // suppress unused parameter warning
+
+        try{
+            // example of parsing single messages. osc::OsckPacketListener
+            // handles the bundle traversal.
+
+            if( std::strcmp( m.AddressPattern(), "/test1" ) == 0 ){
+                // example #1 -- argument stream interface
+                osc::ReceivedMessageArgumentStream args = m.ArgumentStream();
+                float value;
+                args >> value >> osc::EndMessage;
+                std::cout << "received '/test1' message with arguments: " << value << "\n";
+            }
+
+        }catch( osc::Exception& e ){
+            // any parsing errors such as unexpected argument types, or
+            // missing arguments get thrown as exceptions.
+            std::cout << "error while parsing message: "
+                << m.AddressPattern() << ": " << e.what() << "\n";
+        }
+    }
+};
+
+void openvibe_listener(void) {
+    ExamplePacketListener listener;
+    UdpListeningReceiveSocket s(
+            IpEndpointName( IpEndpointName::ANY_ADDRESS, PORT ),
+            &listener );
+    s.RunUntilSigInt();
+}
 
 int main(int argc, char **argv) {
   // Make sure to always catch exceptions around the LibHand code.
   // LibHand uses a "RAII" pattern to provide for a clean shutdown in
   // case of any errors.
   try {
+    thread ov_thread(openvibe_listener);
+
     // Setup the hand renderer
     HandRenderer hand_renderer;
     hand_renderer.Setup();
@@ -57,7 +103,7 @@ int main(int argc, char **argv) {
     hand_renderer.RenderHand();
 
     // Open a window through OpenCV
-    string win_name = "Hand Pic";
+    string win_name = "OpenViBE LibHand Demo";
     cv::namedWindow(win_name);
 
     // We can get an OpenCV matrix from the rendered hand image
@@ -80,6 +126,8 @@ int main(int argc, char **argv) {
     hand_renderer.RenderHand();
     cv::imshow(win_name, pic);
     cv::waitKey();
+
+    //ov_thread.join();
   } catch (const std::exception &e) {
     cerr << "Exception: " << e.what() << endl;
   }

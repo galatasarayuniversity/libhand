@@ -1,5 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.6)
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11") 
 FIND_PACKAGE(OpenCV REQUIRED)
 
 FIND_PACKAGE(LibHand REQUIRED
@@ -18,7 +19,13 @@ include_directories(${LibHand_INCLUDE_DIRS})
 #ADD_EXECUTABLE(file_dialog_test file_dialog_test.cc)
 #TARGET_LINK_LIBRARIES(file_dialog_test hand_utils)
 
-ADD_EXECUTABLE(openvibe_hand openvibe_hand.cc)
+ADD_EXECUTABLE(openvibe_hand
+                openvibe_hand.cc
+                osc/osc/OscTypes.cpp
+                osc/osc/OscPrintReceivedElements.cpp
+                osc/osc/OscReceivedElements.cpp
+                osc/ip/UdpSocket.cpp
+                osc/ip/NetworkingUtils.cpp)
 TARGET_LINK_LIBRARIES(openvibe_hand ${LibHand_LIBRARIES})
 install(TARGETS openvibe_hand DESTINATION ${HAND_LIB_DIST_DIR})
 
