@@ -5,35 +5,31 @@
 
 #include <string>
 #include <thread>
+#include <chrono>
 
 #include <iostream>
 #include <cstring>
+#include <queue>
+
+#include <unistd.h>
+#include <math.h>
 
 #include "osc/osc/OscReceivedElements.h"
 #include "osc/osc/OscPacketListener.h"
 #include "osc/ip/UdpSocket.h"
 #define PORT 7000
 
-// We will use OpenCV, so include the standard OpenCV header
 # include "opencv2/opencv.hpp"
-
-// This is our little library for showing file dialogs
-# include "file_dialog.h"
-
-// We need the HandPose data structure
+# include "text_printer.h"
 # include "hand_pose.h"
-
-// ..the HandRenderer class which is used to render a hand
 # include "hand_renderer.h"
-
-// ..and SceneSpec which tells us where the hand 3D scene data
-// is located on disk, and how the hand 3D object relates to our
-// model of joints.
 # include "scene_spec.h"
 
 // Don't forget to mention the libhand namespace
 using namespace libhand;
 using namespace std;
+
+queue<float> ov_values;
 
 // OpenViBE Listener
 class ExamplePacketListener : public osc::OscPacketListener {
@@ -46,12 +42,12 @@ protected:
             // example of parsing single messages. osc::OsckPacketListener
             // handles the bundle traversal.
 
-            if( std::strcmp( m.AddressPattern(), "/test1" ) == 0 ){
-                // example #1 -- argument stream interface
-                osc::ReceivedMessageArgumentStream args = m.ArgumentStream();
+            if( std::strcmp( m.AddressPattern(), "/libhand" ) == 0 ){
                 float value;
+                osc::ReceivedMessageArgumentStream args = m.ArgumentStream();
                 args >> value >> osc::EndMessage;
-                std::cout << "received '/test1' message with arguments: " << value << "\n";
+                std::cout << "received '/libhand' message with arguments: " << value << "\n";
+                ov_values.push(value);
             }
 
         }catch( osc::Exception& e ){
@@ -65,9 +61,7 @@ protected:
 
 void openvibe_listener(void) {
     ExamplePacketListener listener;
-    UdpListeningReceiveSocket s(
-            IpEndpointName( IpEndpointName::ANY_ADDRESS, PORT ),
-            &listener );
+    UdpListeningReceiveSocket s(IpEndpointName(IpEndpointName::ANY_ADDRESS, PORT), &listener);
     s.RunUntilSigInt();
 }
 
@@ -80,17 +74,15 @@ int main(int argc, char **argv) {
 
     // Setup the hand renderer
     HandRenderer hand_renderer;
-    hand_renderer.Setup();
+    hand_renderer.Setup(800, 600);
 
     string file_name;
 
     if (argc > 1) {
         file_name = argv[1];
     } else {
-        // Ask the user to show the location of the scene spec file
-        FileDialog dialog;
-        dialog.SetTitle("Please select a scene spec file");
-        file_name = dialog.Open();
+        cerr << "Usage: " << argv[0] << " <scene_spec>\n";
+        exit(1);
     }
 
     // Process the scene spec file
@@ -99,33 +91,53 @@ int main(int argc, char **argv) {
     // Tell the renderer to load the scene
     hand_renderer.LoadScene(scene_spec);
 
-    // Now we render a hand using a default pose
+    FullHandPose hand_pose(scene_spec.num_bones());
+    hand_pose.Load("../poses/yandan_avuc.yml", scene_spec);
+    hand_renderer.SetHandPose(hand_pose, true);
     hand_renderer.RenderHand();
 
     // Open a window through OpenCV
-    string win_name = "OpenViBE LibHand Demo";
+    string win_name = "OpenViBE LibHand";
     cv::namedWindow(win_name);
 
     // We can get an OpenCV matrix from the rendered hand image
     cv::Mat pic = hand_renderer.pixel_buffer_cv();
 
-    // And tell OpenCV to show the rendered hand
-    cv::imshow(win_name, pic);
-    cv::waitKey();
+    //TextPrinter text(pic, 800 - 10, 600 - 30);
+    //text.SetRightAlign();
+    //text.Print("Processing OpenViBE queue...");
 
     // Now we're going to change the hand pose and render again
     // The hand pose depends on the number of bones, which is specified
     // by the scene spec file.
-    FullHandPose hand_pose(scene_spec.num_bones());
 
-    // We will bend the first joint, joint 0, by PI/2 radians (90 degrees)
-    hand_pose.bend(0) += 3.14159 / 2;
-    hand_renderer.SetHandPose(hand_pose);
-
-    // Then we will render the hand again and show it to the user.
-    hand_renderer.RenderHand();
+    // And tell OpenCV to show the rendered hand
     cv::imshow(win_name, pic);
-    cv::waitKey();
+    cv::waitKey(1);
+
+    std::chrono::time_point<std::chrono::system_clock> last_empty, first_filled;
+    first_filled = std::chrono::system_clock::now();
+    while (1) {
+        if (!ov_values.empty()) {
+            first_filled = std::chrono::system_clock::now();
+            float value = ov_values.front();
+            ov_values.pop();
+            hand_pose.bend(15) = (value * M_PI/48);
+            hand_renderer.SetHandPose(hand_pose);
+            hand_renderer.RenderHand();
+        } else {
+            // Queue empty
+            std::chrono::duration<double> elapsed = first_filled - last_empty;
+            if (elapsed.count() < -2.0) {
+                hand_pose.bend(15) = 0.0;
+                hand_renderer.SetHandPose(hand_pose);
+                hand_renderer.RenderHand();
+            }
+            last_empty = std::chrono::system_clock::now();
+        }
+        cv::imshow(win_name, pic);
+        cv::waitKey(30);
+    }
 
     //ov_thread.join();
   } catch (const std::exception &e) {
